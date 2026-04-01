@@ -6,11 +6,15 @@ Scanner de securite et importateur de skills pour CL-GO.
 
 ```
 src/
-  patterns.py   — Regles de detection (credential, exfiltration, injection, destructif, obfuscation)
-  scanner.py    — Moteur de scan, produit ScanResult avec verdict PASS/REVIEW/FAIL
-  fetcher.py    — Fetch depuis GitHub URL ou fichier local
-  converter.py  — Conversion au format CL-GO (frontmatter normalise)
-  cli.py        — Point d'entree CLI
+  patterns/
+    types.py      — Pattern, Severity (dataclasses)
+    core.py       — 5 categories originales (credential, exfiltration, injection, destructif, obfuscation)
+    extended.py   — 5 categories etendues (privilege escalation, network recon, reverse shell, webhook, unicode)
+    __init__.py   — Agregation ALL_PATTERNS
+  scanner.py      — Moteur de scan, produit ScanResult avec verdict PASS/REVIEW/FAIL
+  fetcher.py      — Fetch depuis GitHub URL ou fichier local
+  converter.py    — Conversion au format CL-GO (frontmatter normalise)
+  cli.py          — Point d'entree CLI
 ```
 
 ## Usage
@@ -35,5 +39,5 @@ python -m src import "https://github.com/owner/repo/blob/main/SKILL.md" dest/
 ## Stack
 
 - Python 3 pur, zero dependance externe
-- 5 categories de detection, 20+ patterns
-- 15 tests (scanner + converter)
+- 10 categories de detection, 35+ patterns
+- 29 tests (scanner + extended patterns + converter)

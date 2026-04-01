@@ -1,23 +1,6 @@
-"""Detection patterns for malicious skill content."""
+"""Core detection patterns — credential, exfiltration, injection, destructive, obfuscation."""
 
-from dataclasses import dataclass
-from enum import Enum
-
-
-class Severity(Enum):
-    CRITICAL = "critical"
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-
-
-@dataclass(frozen=True)
-class Pattern:
-    name: str
-    regex: str
-    severity: Severity
-    description: str
-
+from .types import Pattern, Severity
 
 CREDENTIAL_HARVEST = [
     Pattern(
@@ -154,7 +137,7 @@ OBFUSCATION = [
     ),
 ]
 
-ALL_PATTERNS: list[Pattern] = (
+CORE_PATTERNS = (
     CREDENTIAL_HARVEST
     + EXFILTRATION
     + PROMPT_INJECTION
