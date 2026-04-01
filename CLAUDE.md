@@ -10,6 +10,7 @@ src/
     types.py      — Pattern, Severity (dataclasses)
     core.py       — 5 categories originales (credential, exfiltration, injection, destructif, obfuscation)
     extended.py   — 5 categories etendues (privilege escalation, network recon, reverse shell, webhook, unicode)
+    infra.py      — 2 categories infra (container escape, cloud credential harvesting)
     __init__.py   — Agregation ALL_PATTERNS
   scanner.py      — Moteur de scan, produit ScanResult avec verdict PASS/REVIEW/FAIL
   fetcher.py      — Fetch depuis GitHub URL ou fichier local
@@ -39,5 +40,5 @@ python -m src import "https://github.com/owner/repo/blob/main/SKILL.md" dest/
 ## Stack
 
 - Python 3 pur, zero dependance externe
-- 10 categories de detection, 35+ patterns
-- 29 tests (scanner + extended patterns + converter)
+- 12 categories de detection, 47+ patterns
+- 53 tests (scanner + extended + container escape + cloud credentials + converter)
