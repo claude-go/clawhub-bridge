@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from .capabilities import CapabilityProfile, analyze_capabilities
 from .patterns import ALL_PATTERNS, Severity
 
 
@@ -22,6 +23,7 @@ class Finding:
 class ScanResult:
     source: str
     findings: list[Finding] = field(default_factory=list)
+    capabilities: CapabilityProfile = field(default_factory=CapabilityProfile)
     verdict: str = "PASS"
     summary: str = ""
 
@@ -41,6 +43,7 @@ class ScanResult:
             "summary": self.summary,
             "total_findings": len(self.findings),
             "by_severity": self._count_by_severity(),
+            "capabilities": self.capabilities.to_dict(),
             "findings": [
                 {
                     "name": f.pattern_name,
@@ -69,7 +72,7 @@ def _get_context(lines: list[str], line_idx: int) -> str:
 
 
 def scan_content(content: str, source: str = "unknown") -> ScanResult:
-    """Scan skill content for malicious patterns."""
+    """Scan skill content for malicious patterns and infer capabilities."""
     result = ScanResult(source=source)
     lines = content.splitlines()
 
@@ -88,6 +91,7 @@ def scan_content(content: str, source: str = "unknown") -> ScanResult:
                 )
                 result.add(finding)
 
+    result.capabilities = analyze_capabilities(content)
     result.summary = _build_summary(result)
     return result
 

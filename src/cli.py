@@ -18,6 +18,12 @@ def _print_report(result: dict) -> None:
     print(f"\n[{icon}] {verdict} — {result['summary']}")
     print(f"    Source : {result['source']}")
 
+    caps = result.get("capabilities", {}).get("profile", {})
+    if caps:
+        print("    Capabilities requises :")
+        for resource, level in sorted(caps.items()):
+            print(f"      {resource}: {level}")
+
     if result["findings"]:
         print(f"    Findings : {result['total_findings']}")
         for f in result["findings"]:
