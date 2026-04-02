@@ -12,6 +12,8 @@ clawhub_bridge/
     extended.py      — 5 categories (privilege escalation, network recon, reverse shell, webhook, unicode)
     infra.py         — 2 categories (container escape, cloud credential harvesting)
     supply_chain.py  — 1 categorie (dependency hijack, curl|bash, custom indexes)
+    persistence.py   — 2 categories (system services, shell init persistence)
+    agent_attacks.py — 4 categories (memory poisoning, config hijack, recursive spawn, instruction smuggling)
     __init__.py      — Agregation ALL_PATTERNS
   capabilities/
     types.py         — AccessLevel (NONE<READ<WRITE<ADMIN), ResourceType (8 types), CapabilityProfile
@@ -53,7 +55,8 @@ result = scan_content(code, source="skill.md")
 ## Stack
 
 - Python 3.10+, zero external dependencies
-- 13 detection categories, 57 patterns
+- 19 detection categories, 76 patterns
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
-- 96 tests
+- 128 tests
+- GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)
