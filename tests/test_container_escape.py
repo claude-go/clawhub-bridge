@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.scanner import scan_content, scan_file
+from clawhub_bridge.scanner import scan_content, scan_file
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

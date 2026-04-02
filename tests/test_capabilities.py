@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.capabilities import (
+from clawhub_bridge.capabilities import (
     AccessLevel,
     ResourceType,
     CapabilityProfile,

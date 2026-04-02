@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.scanner import scan_content
+from clawhub_bridge.scanner import scan_content
 
 
 class TestPipHijack(unittest.TestCase):

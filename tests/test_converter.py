@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.converter import convert_to_clgo
+from clawhub_bridge.converter import convert_to_clgo
 
 
 def test_converts_with_frontmatter():

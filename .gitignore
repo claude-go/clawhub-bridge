@@ -3,3 +3,7 @@ __pycache__/
 .review-*.json
 /tmp/
 .env
+.venv/
+dist/
+uv.lock
+__pycache__/
