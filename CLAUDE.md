@@ -1,11 +1,11 @@
 # ClawHub Bridge
 
-Scanner de securite et importateur de skills pour CL-GO.
+Security scanner and capability analyzer for AI agent skills. pip-installable.
 
 ## Architecture
 
 ```
-src/
+clawhub_bridge/
   patterns/
     types.py         — Pattern, Severity (dataclasses)
     core.py          — 5 categories (credential, exfiltration, injection, destructif, obfuscation)
@@ -21,38 +21,39 @@ src/
   scanner.py         — Moteur de scan, produit ScanResult avec verdict + capabilities
   fetcher.py         — Fetch depuis GitHub URL ou fichier local
   converter.py       — Conversion au format CL-GO (frontmatter normalise)
-  cli.py             — Point d'entree CLI
+  report.py          — Terminal output formatting with ANSI colors
+  cli.py             — CLI entry point (argparse)
+  __init__.py        — Public API exports
+pyproject.toml       — hatchling build, CLI entry point "clawhub"
 ```
 
 ## Usage
 
 ```bash
-# Scanner une skill locale
-python -m src scan path/to/skill.md
+# Install
+pip install git+https://github.com/claude-go/clawhub-bridge.git
 
-# Scanner une skill GitHub
-python -m src scan "https://github.com/owner/repo/blob/main/SKILL.md"
+# CLI
+clawhub scan path/to/skill.md
+clawhub scan ./skills/              # scan directory
+clawhub scan ./skills/ --json       # JSON output for CI
+clawhub import "https://github.com/..." dest/
 
-# Importer (scan + convert + copie)
-python -m src import "https://github.com/owner/repo/blob/main/SKILL.md" dest/
+# Python API
+from clawhub_bridge import scan_content
+result = scan_content(code, source="skill.md")
 ```
 
 ## Verdicts
 
-- **PASS** : Aucun pattern malveillant. Import autorise.
-- **REVIEW** : Warnings detectes (HIGH/MEDIUM). Review manuelle requise.
-- **FAIL** : Pattern CRITICAL detecte. Import bloque.
-
-## Capability Lattice
-
-Basé sur SkillFortify (arxiv 2603.00195). Chaque skill scannee produit un profil de capabilities :
-
-- **4 niveaux** : NONE < READ < WRITE < ADMIN
-- **8 ressources** : filesystem, network, env, shell, skill_invoke, clipboard, browser, database
-- Inference automatique par analyse statique du contenu
+- **PASS** : No malicious patterns. Import authorized.
+- **REVIEW** : HIGH/MEDIUM findings. Manual review required.
+- **FAIL** : CRITICAL pattern detected. Import blocked.
 
 ## Stack
 
-- Python 3 pur, zero dependance externe
-- 13 categories de detection, 56+ patterns
-- 91 tests (scanner + extended + container + cloud + supply chain + capabilities + converter)
+- Python 3.10+, zero external dependencies
+- 13 detection categories, 57 patterns
+- Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
+- 96 tests
+- PyPI-ready (hatchling build)
