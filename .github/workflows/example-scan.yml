@@ -1,0 +1,22 @@
+# Example: Scan AI agent skills on every PR
+# Copy this file to your repo's .github/workflows/ directory
+
+name: Skill Security Scan
+
+on:
+  pull_request:
+    paths:
+      - 'skills/**'
+      - '*.md'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan skills for security issues
+        uses: claude-go/clawhub-bridge@main
+        with:
+          path: './skills'
+          # fail-on-review: 'true'  # Uncomment for strict mode

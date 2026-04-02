@@ -1,0 +1,134 @@
+name: 'ClawHub Security Scanner'
+description: 'Scan AI agent skills (MCP, LangChain, CrewAI) for malicious patterns and capability analysis'
+author: 'claude-go'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  path:
+    description: 'File or directory to scan'
+    required: true
+    default: '.'
+  fail-on-review:
+    description: 'Fail on REVIEW verdict (not just FAIL)'
+    required: false
+    default: 'false'
+  version:
+    description: 'clawhub-bridge version (git ref)'
+    required: false
+    default: 'main'
+
+outputs:
+  verdict:
+    description: 'Overall verdict (PASS/REVIEW/FAIL)'
+    value: ${{ steps.scan.outputs.verdict }}
+  total-findings:
+    description: 'Total number of findings'
+    value: ${{ steps.scan.outputs.total_findings }}
+  critical-count:
+    description: 'Number of CRITICAL findings'
+    value: ${{ steps.scan.outputs.critical_count }}
+  results-json:
+    description: 'Full scan results as JSON'
+    value: ${{ steps.scan.outputs.results_json }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install clawhub-bridge
+      shell: bash
+      run: pip install git+https://github.com/claude-go/clawhub-bridge.git@${{ inputs.version }}
+
+    - name: Run security scan
+      id: scan
+      shell: bash
+      run: |
+        set +e
+        RESULTS=$(clawhub scan "${{ inputs.path }}" --json 2>/dev/null)
+        SCAN_EXIT=$?
+        set -e
+
+        if [ -z "$RESULTS" ]; then
+          echo "verdict=ERROR" >> "$GITHUB_OUTPUT"
+          echo "total_findings=0" >> "$GITHUB_OUTPUT"
+          echo "critical_count=0" >> "$GITHUB_OUTPUT"
+          echo "results_json={}" >> "$GITHUB_OUTPUT"
+          echo "## ClawHub Security Scan" >> "$GITHUB_STEP_SUMMARY"
+          echo "No scannable files found in \`${{ inputs.path }}\`" >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        # Handle single file (object) vs directory (array)
+        IS_ARRAY=$(echo "$RESULTS" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if isinstance(d,list) else 'false')")
+
+        if [ "$IS_ARRAY" = "true" ]; then
+          VERDICT=$(echo "$RESULTS" | python3 -c "
+        import json, sys
+        data = json.load(sys.stdin)
+        if any(r['verdict'] == 'FAIL' for r in data):
+            print('FAIL')
+        elif any(r['verdict'] == 'REVIEW' for r in data):
+            print('REVIEW')
+        else:
+            print('PASS')
+        ")
+          TOTAL=$(echo "$RESULTS" | python3 -c "import json,sys; print(sum(r['total_findings'] for r in json.load(sys.stdin)))")
+          CRITICAL=$(echo "$RESULTS" | python3 -c "import json,sys; print(sum(r.get('by_severity',{}).get('critical',0) for r in json.load(sys.stdin)))")
+        else
+          VERDICT=$(echo "$RESULTS" | python3 -c "import json,sys; print(json.load(sys.stdin)['verdict'])")
+          TOTAL=$(echo "$RESULTS" | python3 -c "import json,sys; print(json.load(sys.stdin)['total_findings'])")
+          CRITICAL=$(echo "$RESULTS" | python3 -c "import json,sys; print(json.load(sys.stdin).get('by_severity',{}).get('critical',0))")
+        fi
+
+        echo "verdict=$VERDICT" >> "$GITHUB_OUTPUT"
+        echo "total_findings=$TOTAL" >> "$GITHUB_OUTPUT"
+        echo "critical_count=$CRITICAL" >> "$GITHUB_OUTPUT"
+        echo "results_json<<CLAWHUB_EOF" >> "$GITHUB_OUTPUT"
+        echo "$RESULTS" >> "$GITHUB_OUTPUT"
+        echo "CLAWHUB_EOF" >> "$GITHUB_OUTPUT"
+
+        # Write GitHub Step Summary
+        {
+          if [ "$VERDICT" = "PASS" ]; then
+            echo "## :white_check_mark: ClawHub Security Scan — PASS"
+          elif [ "$VERDICT" = "REVIEW" ]; then
+            echo "## :warning: ClawHub Security Scan — REVIEW"
+          else
+            echo "## :x: ClawHub Security Scan — FAIL"
+          fi
+
+          echo ""
+          echo "| Metric | Value |"
+          echo "|--------|-------|"
+          echo "| Verdict | **$VERDICT** |"
+          echo "| Total findings | $TOTAL |"
+          echo "| Critical | $CRITICAL |"
+          echo "| Path scanned | \`${{ inputs.path }}\` |"
+          echo ""
+
+          if [ "$TOTAL" -gt 0 ]; then
+            echo "<details><summary>Full scan results</summary>"
+            echo ""
+            echo '```json'
+            echo "$RESULTS" | python3 -m json.tool
+            echo '```'
+            echo ""
+            echo "</details>"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        # Determine exit code
+        if [ "$VERDICT" = "FAIL" ]; then
+          exit 1
+        fi
+        if [ "$VERDICT" = "REVIEW" ] && [ "${{ inputs.fail-on-review }}" = "true" ]; then
+          exit 1
+        fi
+        exit 0

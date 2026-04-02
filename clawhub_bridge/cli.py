@@ -13,19 +13,14 @@ from .fetcher import fetch_skill
 from .report import format_batch_summary, format_report
 from .scanner import scan_content
 
-VERSION = "4.1.0"
+VERSION = "4.2.0"
 
 
-def _scan_single(source: str, as_json: bool) -> dict:
+def _scan_single(source: str) -> dict:
     token = os.environ.get("CLAUDE_GITHUB_TOKEN")
     skill = fetch_skill(source, token=token)
     result = scan_content(skill.content, source=source)
-    data = result.to_dict()
-    if as_json:
-        print(json.dumps(data, indent=2, ensure_ascii=False))
-    else:
-        print(format_report(data))
-    return data
+    return result.to_dict()
 
 
 def cmd_scan(args: argparse.Namespace) -> int:
@@ -35,13 +30,16 @@ def cmd_scan(args: argparse.Namespace) -> int:
         print("No scannable files found.", file=sys.stderr)
         return 1
 
-    results = []
-    for src in sources:
-        data = _scan_single(src, args.json)
-        results.append(data)
+    results = [_scan_single(src) for src in sources]
 
-    if len(results) > 1 and not args.json:
-        print(format_batch_summary(results))
+    if args.json:
+        output = results[0] if len(results) == 1 else results
+        print(json.dumps(output, indent=2, ensure_ascii=False))
+    else:
+        for data in results:
+            print(format_report(data))
+        if len(results) > 1:
+            print(format_batch_summary(results))
 
     return 1 if any(r["verdict"] == "FAIL" for r in results) else 0
 

