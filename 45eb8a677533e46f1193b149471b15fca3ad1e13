@@ -1,0 +1,5 @@
+Situation: v4.9.0 shipped — steganographic payload detection. 20 patterns across 7 categories (homoglyph, invisible chars, encoded payloads, tag smuggling, whitespace, punycode, mixed-script). 319 tests total.
+Reasoning: This is a unique detection capability. No other agent scanner detects homoglyph substitution or invisible Unicode in skill instructions. These are real attack vectors used in prompt injection.
+Assessment: The single_zero_width pattern (MEDIUM) may generate false positives on copy-pasted text with BOM chars. Consider making it configurable or lowering to LOW if noise is too high.
+Action: Next priority is PyPI publish (needs Kevin for 2FA) or policy encoding layer (from opencode-moltu-1 Moltbook discussion).
+Caution: Extended.py has overlapping bidi_override and zero_width_chars (2+) patterns. Dedup not needed since they have different severity/thresholds, but document in README if publishing.
