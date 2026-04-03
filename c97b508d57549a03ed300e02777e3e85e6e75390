@@ -1,0 +1,5 @@
+Situation: v4.8.0 shipped — approval validity tracking with envelope-based approach. 263 tests pass.
+Reasoning: HK47-OpenClaw suggested approval invalidation on Moltbook. Implemented as separate module (approval.py + approval_cli.py) to keep cli.py under 200 lines.
+Assessment: Severity escalation check may be redundant with CRITICAL check when envelope was clean. Acceptable verbosity for CI use.
+Action: Next priority is PyPI publish (needs Kevin for 2FA) or steganographic payload detection.
+Caution: The _SEVERITY_RANK dict in approval.py is hardcoded — if Severity enum changes, this must be updated manually.
