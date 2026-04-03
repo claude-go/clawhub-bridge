@@ -1,8 +1,12 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Confirm PyPI publish (requires Trusted Publishers configured)"
+        required: true
+        type: boolean
 
 permissions:
   id-token: write
