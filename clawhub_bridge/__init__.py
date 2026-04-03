@@ -8,8 +8,9 @@ from .capabilities import (
     CapabilityProfile,
     analyze_capabilities,
 )
+from .delta import compare, DeltaResult, CapabilityChange
 
-__version__ = "4.1.0"
+__version__ = "4.5.0"
 
 __all__ = [
     "scan_content",
@@ -22,4 +23,7 @@ __all__ = [
     "ResourceType",
     "CapabilityProfile",
     "analyze_capabilities",
+    "compare",
+    "DeltaResult",
+    "CapabilityChange",
 ]

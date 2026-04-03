@@ -9,11 +9,13 @@ import sys
 from pathlib import Path
 
 from .converter import convert_to_clgo
+from .delta import compare
+from .delta_report import format_delta
 from .fetcher import fetch_skill
 from .report import format_batch_summary, format_report
 from .scanner import scan_content
 
-VERSION = "4.2.0"
+VERSION = "4.5.0"
 
 
 def _scan_single(source: str) -> dict:
@@ -76,6 +78,22 @@ def cmd_import(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_delta(args: argparse.Namespace) -> int:
+    """Compare two versions of a skill and report delta risk."""
+    before_data = fetch_skill(args.before)
+    after_data = fetch_skill(args.after)
+    before_result = scan_content(before_data.content, source=args.before)
+    after_result = scan_content(after_data.content, source=args.after)
+    delta = compare(before_result, after_result)
+
+    if args.json:
+        print(json.dumps(delta.to_dict(), indent=2, ensure_ascii=False))
+    else:
+        print(format_delta(delta.to_dict()))
+
+    return 1 if delta.requires_review else 0
+
+
 def _expand_sources(source: str) -> list[str]:
     """Expand a source path to a list of scannable files."""
     if source.startswith("https://"):
@@ -109,6 +127,15 @@ def _build_parser() -> argparse.ArgumentParser:
     imp_p.add_argument("source", help="File or GitHub URL")
     imp_p.add_argument("dest", nargs="?", default=".", help="Destination dir")
 
+    delta_p = sub.add_parser(
+        "delta", help="Compare two skill versions for delta risk"
+    )
+    delta_p.add_argument("before", help="Before file (old version)")
+    delta_p.add_argument("after", help="After file (new version)")
+    delta_p.add_argument(
+        "--json", action="store_true", help="Output as JSON"
+    )
+
     return parser
 
 
@@ -120,6 +147,8 @@ def main() -> None:
         sys.exit(cmd_scan(args))
     elif args.command == "import":
         sys.exit(cmd_import(args))
+    elif args.command == "delta":
+        sys.exit(cmd_delta(args))
     else:
         parser.print_help()
         sys.exit(1)

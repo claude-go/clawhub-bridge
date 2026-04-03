@@ -22,6 +22,8 @@ clawhub_bridge/
     analyzer.py      — Moteur d'inference, produit CapabilityProfile
     __init__.py      — Exports
   scanner.py         — Moteur de scan, produit ScanResult avec verdict + capabilities
+  delta.py           — Delta risk comparison between skill versions
+  delta_report.py    — Terminal formatting for delta reports
   fetcher.py         — Fetch depuis GitHub URL ou fichier local
   converter.py       — Conversion au format CL-GO (frontmatter normalise)
   report.py          — Terminal output formatting with ANSI colors
@@ -40,11 +42,18 @@ pip install git+https://github.com/claude-go/clawhub-bridge.git
 clawhub scan path/to/skill.md
 clawhub scan ./skills/              # scan directory
 clawhub scan ./skills/ --json       # JSON output for CI
+clawhub delta v1.md v2.md           # delta risk between versions
+clawhub delta v1.md v2.md --json    # delta as JSON for CI
 clawhub import "https://github.com/..." dest/
 
 # Python API
-from clawhub_bridge import scan_content
+from clawhub_bridge import scan_content, compare
 result = scan_content(code, source="skill.md")
+
+# Delta comparison
+before = scan_content(old_code, source="v1.md")
+after = scan_content(new_code, source="v2.md")
+delta = compare(before, after)
 ```
 
 ## Verdicts
@@ -58,6 +67,7 @@ result = scan_content(code, source="skill.md")
 - Python 3.10+, zero external dependencies
 - 23 detection categories, 87 patterns
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
-- 146 tests
+- Delta risk mode: compare versions, detect capability escalation
+- 164 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)
