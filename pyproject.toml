@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clawhub-bridge"
-version = "4.9.0"
-description = "Security scanner and capability analyzer for AI agent skills (MCP, LangChain, CrewAI)"
+version = "5.0.0"
+description = "Security scanner for AI agent skills — 145 patterns, capability lattice, delta risk, policy encoding. Zero dependencies."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
