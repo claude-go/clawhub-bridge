@@ -10,7 +10,7 @@ from .capabilities import (
 )
 from .delta import compare, DeltaResult, CapabilityChange
 
-__version__ = "4.5.0"
+__version__ = "4.6.0"
 
 __all__ = [
     "scan_content",

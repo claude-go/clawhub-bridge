@@ -125,9 +125,9 @@ jobs:
 
 AI agents use skills (plugins, tools, MCP servers) written by anyone. Most agent frameworks trust skills blindly. ClawHub Bridge doesn't.
 
-It scans skill content for **87 malicious patterns** across **23 categories**, infers a **capability profile** (what the skill actually needs access to), and returns a clear verdict: PASS, REVIEW, or FAIL.
+It scans skill content for **104 malicious patterns** across **29 categories**, infers a **capability profile** (what the skill actually needs access to), and returns a clear verdict: PASS, REVIEW, or FAIL.
 
-Zero dependencies. Pure Python. 146 tests. GitHub Action included.
+Zero dependencies. Pure Python. 192 tests. GitHub Action included.
 
 ## Detection Categories
 
@@ -156,6 +156,12 @@ Zero dependencies. Pure Python. 146 tests. GitHub Action included.
 | A2A Identity Violation | 2 | CRITICAL | Identity spoofing, system constraint override |
 | A2A Chain Obfuscation | 3 | HIGH | Deep delegation chains, background write, external endpoints |
 | A2A Cross-Agent Leakage | 2 | HIGH | Credential forwarding, unrestricted access grants |
+| Rendered Output Exfil | 5 | CRITICAL/HIGH | Markdown image tracking, dynamic URL with secrets |
+| Clipboard Exfil | 2 | CRITICAL/HIGH | pbcopy/xclip pipe secrets, clipboard staging |
+| Git Staging Exfil | 3 | HIGH | Foreign remotes, push to attacker repo, secrets in git notes |
+| Error-Triggered Exfil | 2 | HIGH | Secrets in error messages, Sentry tag leaks |
+| Logging Endpoint Exfil | 2 | HIGH | Datadog/Splunk with user data, webhook disguised as log |
+| Agent Memory Exfil | 4 | CRITICAL/MEDIUM | Secrets to shared memory, output channel leaks, dead drops |
 
 ## Capability Lattice
 
@@ -181,7 +187,7 @@ A skill that reads files and makes HTTP requests gets `filesystem: READ, network
 python -m pytest tests/ -v
 ```
 
-146 tests covering all 23 detection categories, the capability lattice, CLI batch output, and the converter.
+192 tests covering all 29 detection categories, the capability lattice, CLI batch output, and the converter.
 
 ## Related
 

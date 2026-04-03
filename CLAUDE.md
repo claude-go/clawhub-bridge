@@ -15,6 +15,7 @@ clawhub_bridge/
     persistence.py   — 2 categories (system services, shell init persistence)
     agent_attacks.py    — 4 categories (memory poisoning, config hijack, recursive spawn, instruction smuggling)
     a2a_delegation.py   — 4 categories (permission bypass, identity violation, chain obfuscation, cross-agent leakage)
+    indirect_exfil.py   — 6 categories (rendered output, clipboard, git staging, error triggered, logging endpoint, agent memory)
     __init__.py         — Agregation ALL_PATTERNS
   capabilities/
     types.py         — AccessLevel (NONE<READ<WRITE<ADMIN), ResourceType (8 types), CapabilityProfile
@@ -65,9 +66,9 @@ delta = compare(before, after)
 ## Stack
 
 - Python 3.10+, zero external dependencies
-- 23 detection categories, 87 patterns
+- 29 detection categories, 104 patterns
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
 - Delta risk mode: compare versions, detect capability escalation
-- 164 tests
+- 192 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)
