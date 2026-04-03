@@ -7,6 +7,7 @@ from .infra import INFRA_PATTERNS
 from .supply_chain import SUPPLY_CHAIN_PATTERNS
 from .persistence import PERSISTENCE_PATTERNS
 from .agent_attacks import AGENT_ATTACK_PATTERNS
+from .a2a_delegation import A2A_DELEGATION_PATTERNS
 
 ALL_PATTERNS: list[Pattern] = (
     CORE_PATTERNS
@@ -15,6 +16,7 @@ ALL_PATTERNS: list[Pattern] = (
     + SUPPLY_CHAIN_PATTERNS
     + PERSISTENCE_PATTERNS
     + AGENT_ATTACK_PATTERNS
+    + A2A_DELEGATION_PATTERNS
 )
 
 __all__ = ["Pattern", "Severity", "ALL_PATTERNS"]

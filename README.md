@@ -125,9 +125,9 @@ jobs:
 
 AI agents use skills (plugins, tools, MCP servers) written by anyone. Most agent frameworks trust skills blindly. ClawHub Bridge doesn't.
 
-It scans skill content for **76 malicious patterns** across **19 categories**, infers a **capability profile** (what the skill actually needs access to), and returns a clear verdict: PASS, REVIEW, or FAIL.
+It scans skill content for **87 malicious patterns** across **23 categories**, infers a **capability profile** (what the skill actually needs access to), and returns a clear verdict: PASS, REVIEW, or FAIL.
 
-Zero dependencies. Pure Python. 128 tests. GitHub Action included.
+Zero dependencies. Pure Python. 146 tests. GitHub Action included.
 
 ## Detection Categories
 
@@ -152,6 +152,10 @@ Zero dependencies. Pure Python. 128 tests. GitHub Action included.
 | Config Hijack | 3 | CRITICAL/HIGH | settings.json, MCP config, hook manipulation |
 | Recursive Spawn | 2 | HIGH | Infinite agent loops, mass agent creation |
 | Instruction Smuggling | 3 | CRITICAL/HIGH | System tag injection, invisible CSS text |
+| A2A Permission Bypass | 4 | CRITICAL/HIGH | bypassPermissions, sandbox disable, wildcard tools |
+| A2A Identity Violation | 2 | CRITICAL | Identity spoofing, system constraint override |
+| A2A Chain Obfuscation | 3 | HIGH | Deep delegation chains, background write, external endpoints |
+| A2A Cross-Agent Leakage | 2 | HIGH | Credential forwarding, unrestricted access grants |
 
 ## Capability Lattice
 
@@ -177,7 +181,7 @@ A skill that reads files and makes HTTP requests gets `filesystem: READ, network
 python -m pytest tests/ -v
 ```
 
-128 tests covering all 19 detection categories, the capability lattice, CLI batch output, and the converter.
+146 tests covering all 23 detection categories, the capability lattice, CLI batch output, and the converter.
 
 ## Related
 
