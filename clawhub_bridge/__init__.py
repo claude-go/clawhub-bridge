@@ -15,9 +15,16 @@ from .approval import (
     create_envelope,
     check_approval,
 )
+from .policy import (
+    Policy,
+    PolicyContext,
+    PolicyVerdict,
+    apply_policy,
+)
+from .policy_loader import load_policy, parse_policy
 from .reachability import analyze_reachability, ReachabilityResult
 
-__version__ = "4.8.0"
+__version__ = "5.0.0"
 
 __all__ = [
     "scan_content",
@@ -39,4 +46,10 @@ __all__ = [
     "ApprovalVerdict",
     "create_envelope",
     "check_approval",
+    "Policy",
+    "PolicyContext",
+    "PolicyVerdict",
+    "apply_policy",
+    "load_policy",
+    "parse_policy",
 ]

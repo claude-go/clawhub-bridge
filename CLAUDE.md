@@ -30,6 +30,10 @@ clawhub_bridge/
   delta_report.py    — Terminal formatting for delta reports
   approval.py        — Approval envelope creation and validity checking
   approval_cli.py    — CLI commands for approve and check
+  policy.py          — Policy types + apply logic (context-aware verdict evaluation)
+  policy_loader.py   — Policy loading, parsing, default template
+  policy_cli.py      — CLI commands for policy init/validate
+  import_cli.py      — CLI command for skill import
   fetcher.py         — Fetch depuis GitHub URL ou fichier local
   converter.py       — Conversion au format CL-GO (frontmatter normalise)
   report.py          — Terminal output formatting with ANSI colors
@@ -54,9 +58,13 @@ clawhub approve skill.md            # create approval envelope
 clawhub check skill.approval.json new-skill.md  # check against envelope
 clawhub check skill.approval.json new-skill.md --json
 clawhub import "https://github.com/..." dest/
+clawhub scan skill.md --policy policy.json --context development
+clawhub policy init > policy.json     # generate default policy
+clawhub policy validate policy.json   # validate policy file
 
 # Python API
 from clawhub_bridge import scan_content, compare, create_envelope, check_approval
+from clawhub_bridge import apply_policy, load_policy
 result = scan_content(code, source="skill.md")
 
 # Delta comparison
@@ -67,6 +75,10 @@ delta = compare(before, after)
 # Approval validity
 envelope = create_envelope(result)
 verdict = check_approval(envelope, new_result)
+
+# Policy-based verdict
+policy = load_policy("policy.json")
+pv = apply_policy(result.to_dict()["findings"], policy, "staging")
 ```
 
 ## Verdicts
@@ -83,6 +95,7 @@ verdict = check_approval(envelope, new_result)
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
 - Delta risk mode: compare versions, detect capability escalation
 - Approval validity: envelope-based approval tracking for CI pipelines
-- 319 tests
+- Policy encoding: context-aware verdicts (dev/staging/prod), category blocking, allowlists
+- 354 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)

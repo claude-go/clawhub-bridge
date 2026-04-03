@@ -9,14 +9,17 @@ import sys
 from pathlib import Path
 
 from .approval_cli import cmd_approve, cmd_check
-from .converter import convert_to_clgo
 from .delta import compare
 from .delta_report import format_delta
 from .fetcher import fetch_skill
-from .report import format_batch_summary, format_report
+from .import_cli import cmd_import
+from .policy import apply_policy
+from .policy_cli import cmd_policy
+from .policy_loader import load_policy
+from .report import format_batch_summary, format_policy_verdict, format_report
 from .scanner import scan_content
 
-VERSION = "4.8.0"
+VERSION = "5.0.0"
 
 
 def _scan_single(source: str) -> dict:
@@ -33,7 +36,16 @@ def cmd_scan(args: argparse.Namespace) -> int:
         print("No scannable files found.", file=sys.stderr)
         return 1
 
+    policy = load_policy(args.policy) if args.policy else None
+    context_name = args.context if hasattr(args, "context") else None
+
     results = [_scan_single(src) for src in sources]
+
+    if policy:
+        for data in results:
+            pv = apply_policy(data["findings"], policy, context_name)
+            data["policy_verdict"] = pv.to_dict()
+            data["verdict"] = pv.verdict
 
     if args.json:
         output = results[0] if len(results) == 1 else results
@@ -41,42 +53,12 @@ def cmd_scan(args: argparse.Namespace) -> int:
     else:
         for data in results:
             print(format_report(data))
+            if "policy_verdict" in data:
+                print(format_policy_verdict(data["policy_verdict"]))
         if len(results) > 1:
             print(format_batch_summary(results))
 
     return 1 if any(r["verdict"] == "FAIL" for r in results) else 0
-
-
-def cmd_import(args: argparse.Namespace) -> int:
-    """Scan, convert, and import a skill."""
-    token = os.environ.get("CLAUDE_GITHUB_TOKEN")
-    skill = fetch_skill(args.source, token=token)
-
-    result = scan_content(skill.content, source=args.source)
-    print(format_report(result.to_dict()))
-
-    if result.verdict == "FAIL":
-        print("Import BLOCKED — dangerous skill.", file=sys.stderr)
-        return 1
-
-    if result.verdict == "REVIEW":
-        print("Warnings detected. Import pending review.",
-              file=sys.stderr)
-        report_path = Path(args.dest) / f".review-{skill.name}.json"
-        report_path.write_text(
-            json.dumps(result.to_dict(), indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
-        print(f"Report saved: {report_path}")
-        return 2
-
-    converted = convert_to_clgo(skill.content, skill.name)
-    dest = Path(args.dest) / f"{converted.name}.md"
-    dest.write_text(converted.content, encoding="utf-8")
-    print(f"Skill imported: {dest}")
-    for change in converted.changes_made:
-        print(f"  - {change}")
-    return 0
 
 
 def cmd_delta(args: argparse.Namespace) -> int:
@@ -123,6 +105,12 @@ def _build_parser() -> argparse.ArgumentParser:
     scan_p.add_argument(
         "--json", action="store_true", help="Output as JSON"
     )
+    scan_p.add_argument(
+        "--policy", help="Path to policy JSON file"
+    )
+    scan_p.add_argument(
+        "--context", help="Policy context (e.g. development, staging, production)"
+    )
 
     imp_p = sub.add_parser("import", help="Scan + convert + import a skill")
     imp_p.add_argument("source", help="File or GitHub URL")
@@ -154,23 +142,39 @@ def _build_parser() -> argparse.ArgumentParser:
         "--json", action="store_true", help="Output as JSON"
     )
 
+    policy_p = sub.add_parser(
+        "policy", help="Policy management (init, validate)"
+    )
+    policy_sub = policy_p.add_subparsers(dest="policy_command")
+
+    policy_sub.add_parser(
+        "init", help="Generate a default policy file"
+    )
+
+    validate_p = policy_sub.add_parser(
+        "validate", help="Validate a policy file"
+    )
+    validate_p.add_argument("path", help="Path to policy JSON file")
+
     return parser
+
+
+_COMMANDS = {
+    "scan": cmd_scan,
+    "import": cmd_import,
+    "delta": cmd_delta,
+    "approve": cmd_approve,
+    "check": cmd_check,
+    "policy": cmd_policy,
+}
 
 
 def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
-
-    if args.command == "scan":
-        sys.exit(cmd_scan(args))
-    elif args.command == "import":
-        sys.exit(cmd_import(args))
-    elif args.command == "delta":
-        sys.exit(cmd_delta(args))
-    elif args.command == "approve":
-        sys.exit(cmd_approve(args))
-    elif args.command == "check":
-        sys.exit(cmd_check(args))
+    handler = _COMMANDS.get(args.command)
+    if handler:
+        sys.exit(handler(args))
     else:
         parser.print_help()
         sys.exit(1)

@@ -11,6 +11,8 @@ class FakeArgs:
     def __init__(self, source: str, as_json: bool = False):
         self.source = source
         self.json = as_json
+        self.policy = None
+        self.context = None
 
 
 class TestExpandSources:

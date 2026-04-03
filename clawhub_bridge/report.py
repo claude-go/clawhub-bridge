@@ -113,3 +113,32 @@ def format_batch_summary(results: list[dict]) -> str:
         parts.append(f"{_RED}{failed} FAIL{_RESET}")
 
     return f"\n  {' | '.join(parts)}\n"
+
+
+def format_policy_verdict(verdict: dict) -> str:
+    """Format a policy verdict dict for terminal output."""
+    lines: list[str] = []
+    v = verdict["verdict"]
+    style = _VERDICT_STYLE.get(v, "")
+    icon = _VERDICT_ICON.get(v, "?")
+
+    lines.append("")
+    lines.append(
+        f"  {_CYAN}{_BOLD}Policy [{verdict['context']}]{_RESET}"
+    )
+    lines.append(
+        f"  {style}[{icon}]{_RESET} {style}{v}{_RESET}"
+        f" {_DIM}— {verdict['total_findings']} findings"
+        f" ({verdict['blocked']} blocked,"
+        f" {verdict['reviewed']} review,"
+        f" {verdict['allowed']} allowed){_RESET}"
+    )
+
+    reasons = verdict.get("reasons", [])
+    if reasons:
+        lines.append("")
+        for r in reasons:
+            lines.append(f"    {_RED}> {r}{_RESET}")
+
+    lines.append("")
+    return "\n".join(lines)
