@@ -92,6 +92,10 @@ def scan_content(content: str, source: str = "unknown") -> ScanResult:
                 result.add(finding)
 
     result.capabilities = analyze_capabilities(content)
+
+    from .reachability import escalate_unguarded
+    result = escalate_unguarded(result, content)
+
     result.summary = _build_summary(result)
     return result
 

@@ -16,6 +16,7 @@ clawhub_bridge/
     agent_attacks.py    — 4 categories (memory poisoning, config hijack, recursive spawn, instruction smuggling)
     a2a_delegation.py   — 4 categories (permission bypass, identity violation, chain obfuscation, cross-agent leakage)
     indirect_exfil.py   — 6 categories (rendered output, clipboard, git staging, error triggered, logging endpoint, agent memory)
+    irreversible.py     — 6 categories (financial, communication, deployment, data loss, access control, service lifecycle)
     __init__.py         — Agregation ALL_PATTERNS
   capabilities/
     types.py         — AccessLevel (NONE<READ<WRITE<ADMIN), ResourceType (8 types), CapabilityProfile
@@ -23,6 +24,7 @@ clawhub_bridge/
     analyzer.py      — Moteur d'inference, produit CapabilityProfile
     __init__.py      — Exports
   scanner.py         — Moteur de scan, produit ScanResult avec verdict + capabilities
+  reachability.py    — Irreversible action reachability (guard detection, severity escalation)
   delta.py           — Delta risk comparison between skill versions
   delta_report.py    — Terminal formatting for delta reports
   fetcher.py         — Fetch depuis GitHub URL ou fichier local
@@ -66,9 +68,10 @@ delta = compare(before, after)
 ## Stack
 
 - Python 3.10+, zero external dependencies
-- 29 detection categories, 104 patterns
+- 35 detection categories, 125 patterns
+- Irreversible action reachability: guard detection, severity escalation
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
 - Delta risk mode: compare versions, detect capability escalation
-- 192 tests
+- 240 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)

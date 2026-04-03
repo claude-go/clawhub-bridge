@@ -9,8 +9,9 @@ from .capabilities import (
     analyze_capabilities,
 )
 from .delta import compare, DeltaResult, CapabilityChange
+from .reachability import analyze_reachability, ReachabilityResult
 
-__version__ = "4.6.0"
+__version__ = "4.7.0"
 
 __all__ = [
     "scan_content",
@@ -26,4 +27,6 @@ __all__ = [
     "compare",
     "DeltaResult",
     "CapabilityChange",
+    "analyze_reachability",
+    "ReachabilityResult",
 ]

@@ -15,7 +15,7 @@ from .fetcher import fetch_skill
 from .report import format_batch_summary, format_report
 from .scanner import scan_content
 
-VERSION = "4.5.0"
+VERSION = "4.7.0"
 
 
 def _scan_single(source: str) -> dict:
