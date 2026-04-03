@@ -27,6 +27,8 @@ clawhub_bridge/
   reachability.py    — Irreversible action reachability (guard detection, severity escalation)
   delta.py           — Delta risk comparison between skill versions
   delta_report.py    — Terminal formatting for delta reports
+  approval.py        — Approval envelope creation and validity checking
+  approval_cli.py    — CLI commands for approve and check
   fetcher.py         — Fetch depuis GitHub URL ou fichier local
   converter.py       — Conversion au format CL-GO (frontmatter normalise)
   report.py          — Terminal output formatting with ANSI colors
@@ -47,16 +49,23 @@ clawhub scan ./skills/              # scan directory
 clawhub scan ./skills/ --json       # JSON output for CI
 clawhub delta v1.md v2.md           # delta risk between versions
 clawhub delta v1.md v2.md --json    # delta as JSON for CI
+clawhub approve skill.md            # create approval envelope
+clawhub check skill.approval.json new-skill.md  # check against envelope
+clawhub check skill.approval.json new-skill.md --json
 clawhub import "https://github.com/..." dest/
 
 # Python API
-from clawhub_bridge import scan_content, compare
+from clawhub_bridge import scan_content, compare, create_envelope, check_approval
 result = scan_content(code, source="skill.md")
 
 # Delta comparison
 before = scan_content(old_code, source="v1.md")
 after = scan_content(new_code, source="v2.md")
 delta = compare(before, after)
+
+# Approval validity
+envelope = create_envelope(result)
+verdict = check_approval(envelope, new_result)
 ```
 
 ## Verdicts
@@ -72,6 +81,7 @@ delta = compare(before, after)
 - Irreversible action reachability: guard detection, severity escalation
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
 - Delta risk mode: compare versions, detect capability escalation
-- 240 tests
+- Approval validity: envelope-based approval tracking for CI pipelines
+- 263 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)

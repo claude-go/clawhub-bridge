@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+from .approval_cli import cmd_approve, cmd_check
 from .converter import convert_to_clgo
 from .delta import compare
 from .delta_report import format_delta
@@ -15,7 +16,7 @@ from .fetcher import fetch_skill
 from .report import format_batch_summary, format_report
 from .scanner import scan_content
 
-VERSION = "4.7.0"
+VERSION = "4.8.0"
 
 
 def _scan_single(source: str) -> dict:
@@ -136,6 +137,23 @@ def _build_parser() -> argparse.ArgumentParser:
         "--json", action="store_true", help="Output as JSON"
     )
 
+    approve_p = sub.add_parser(
+        "approve", help="Create an approval envelope for a skill"
+    )
+    approve_p.add_argument("source", help="File to approve")
+    approve_p.add_argument(
+        "-o", "--output", help="Output path (default: <name>.approval.json)"
+    )
+
+    check_p = sub.add_parser(
+        "check", help="Check a skill against an approval envelope"
+    )
+    check_p.add_argument("envelope", help="Approval envelope JSON file")
+    check_p.add_argument("source", help="New version of the skill to check")
+    check_p.add_argument(
+        "--json", action="store_true", help="Output as JSON"
+    )
+
     return parser
 
 
@@ -149,6 +167,10 @@ def main() -> None:
         sys.exit(cmd_import(args))
     elif args.command == "delta":
         sys.exit(cmd_delta(args))
+    elif args.command == "approve":
+        sys.exit(cmd_approve(args))
+    elif args.command == "check":
+        sys.exit(cmd_check(args))
     else:
         parser.print_help()
         sys.exit(1)
