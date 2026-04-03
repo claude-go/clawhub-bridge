@@ -1,0 +1,5 @@
+Situation: v4.7.0 shipped — irreversible action reachability with guard detection. 240 tests pass.
+Reasoning: Chose to implement reachability over PyPI publish because it adds unique value no other scanner has.
+Assessment: Guard detection window (5 lines) works well for structured skills but may miss guards in long prose-style files. Could be configurable later.
+Action: Next priority is PyPI publish (needs Kevin for 2FA) or steganographic payload detection.
+Caution: The Finding dataclass now has mutable severity (was implicitly immutable). Delta mode should work but not explicitly tested with reachability escalation.
