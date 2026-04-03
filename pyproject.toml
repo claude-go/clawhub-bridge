@@ -49,5 +49,7 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
+    "build>=1.4.2",
     "pytest>=9.0.2",
+    "twine>=6.2.0",
 ]
