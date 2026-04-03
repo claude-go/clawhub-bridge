@@ -17,6 +17,7 @@ clawhub_bridge/
     a2a_delegation.py   — 4 categories (permission bypass, identity violation, chain obfuscation, cross-agent leakage)
     indirect_exfil.py   — 6 categories (rendered output, clipboard, git staging, error triggered, logging endpoint, agent memory)
     irreversible.py     — 6 categories (financial, communication, deployment, data loss, access control, service lifecycle)
+    steganography.py    — 7 categories (homoglyph, invisible chars, encoded payloads, tag smuggling, whitespace, punycode, mixed-script)
     __init__.py         — Agregation ALL_PATTERNS
   capabilities/
     types.py         — AccessLevel (NONE<READ<WRITE<ADMIN), ResourceType (8 types), CapabilityProfile
@@ -77,11 +78,11 @@ verdict = check_approval(envelope, new_result)
 ## Stack
 
 - Python 3.10+, zero external dependencies
-- 35 detection categories, 125 patterns
+- 42 detection categories, 145 patterns
 - Irreversible action reachability: guard detection, severity escalation
 - Capability lattice: 4 levels (NONE<READ<WRITE<ADMIN) x 8 resources
 - Delta risk mode: compare versions, detect capability escalation
 - Approval validity: envelope-based approval tracking for CI pipelines
-- 263 tests
+- 319 tests
 - GitHub Action (composite, action.yml at root)
 - PyPI-ready (hatchling build)
