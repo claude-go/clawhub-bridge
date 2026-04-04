@@ -13,13 +13,14 @@ from .delta import compare
 from .delta_report import format_delta
 from .fetcher import fetch_skill
 from .import_cli import cmd_import
+from .mcp_cli import cmd_mcp_scan
 from .policy import apply_policy
 from .policy_cli import cmd_policy
 from .policy_loader import load_policy
 from .report import format_batch_summary, format_policy_verdict, format_report
 from .scanner import scan_content
 
-VERSION = "5.0.0"
+VERSION = "5.1.0"
 
 
 def _scan_single(source: str) -> dict:
@@ -156,6 +157,16 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     validate_p.add_argument("path", help="Path to policy JSON file")
 
+    mcp_p = sub.add_parser(
+        "mcp-scan", help="Scan MCP server configs for security issues"
+    )
+    mcp_p.add_argument(
+        "source", help="MCP config file (JSON)"
+    )
+    mcp_p.add_argument(
+        "--json", action="store_true", help="Output as JSON"
+    )
+
     return parser
 
 
@@ -166,6 +177,7 @@ _COMMANDS = {
     "approve": cmd_approve,
     "check": cmd_check,
     "policy": cmd_policy,
+    "mcp-scan": cmd_mcp_scan,
 }
 
 

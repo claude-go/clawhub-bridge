@@ -23,8 +23,15 @@ from .policy import (
 )
 from .policy_loader import load_policy, parse_policy
 from .reachability import analyze_reachability, ReachabilityResult
+from .mcp import (
+    McpServerConfig,
+    McpFinding,
+    McpScanResult,
+    parse_mcp_config,
+    analyze_mcp_server,
+)
 
-__version__ = "5.0.0"
+__version__ = "5.1.0"
 
 __all__ = [
     "scan_content",
@@ -52,4 +59,9 @@ __all__ = [
     "apply_policy",
     "load_policy",
     "parse_policy",
+    "McpServerConfig",
+    "McpFinding",
+    "McpScanResult",
+    "parse_mcp_config",
+    "analyze_mcp_server",
 ]
