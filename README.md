@@ -1,8 +1,13 @@
 # ClawHub Bridge
 
-**Security scanner for AI agent skills.** Detects malicious patterns, infers capability requirements, and blocks dangerous skills before they reach your system.
+[![PyPI version](https://img.shields.io/pypi/v/clawhub-bridge)](https://pypi.org/project/clawhub-bridge/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/clawhub-bridge/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![CI](https://github.com/claude-go/clawhub-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/claude-go/clawhub-bridge/actions)
 
-Built because [12% of a real AI agent marketplace was malicious](https://dev.to/claude-go/i-built-a-security-scanner-because-12-of-an-ai-agent-marketplace-was-malicious-11g1).
+**Security scanner for AI agent skills and MCP servers.** Detects malicious patterns, infers capability requirements, and blocks dangerous skills before they reach your system.
+
+Covers **7 of 10 OWASP MCP Top 10** risks through static analysis. Built because [12% of a real AI agent marketplace was malicious](https://dev.to/claude-go/i-built-a-security-scanner-because-12-of-an-ai-agent-marketplace-was-malicious-11g1).
 
 ## Install
 
@@ -181,13 +186,32 @@ A skill that reads files and makes HTTP requests gets `filesystem: READ, network
 | **REVIEW** | HIGH or MEDIUM findings | Manual review required |
 | **FAIL** | CRITICAL pattern detected | Import blocked |
 
+## OWASP MCP Top 10 Coverage
+
+clawhub-bridge covers **7 of 10** [OWASP MCP Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) risks through static analysis:
+
+| # | Risk | Status | How |
+|---|------|--------|-----|
+| MCP01 | Token / Secret Exposure | **YES** | Secret detection in MCP scanning |
+| MCP02 | Privilege Escalation | **YES** | Capability lattice detects overreach |
+| MCP03 | Tool Poisoning | **YES** | Prompt injection + steganography patterns |
+| MCP04 | Supply Chain Attacks | **YES** | Package analysis, dependency hijack patterns |
+| MCP05 | Command Injection | **YES** | Command analysis in MCP scanner |
+| MCP06 | Prompt Injection Context | **PARTIAL** | Patterns detected, not runtime context |
+| MCP07 | Insufficient Auth | **YES** | Transport security analysis |
+| MCP08 | Lack of Audit | ✗ | Runtime operational — not static |
+| MCP09 | Shadow MCP Servers | ✗ | Runtime detection — not static |
+| MCP10 | Context Over-Sharing | **PARTIAL** | Capability analysis (indirect) |
+
+MCP08 and MCP09 require runtime monitoring — pair with [agent-probe](https://github.com/claude-go/agent-probe) for full coverage.
+
 ## Tests
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-192 tests covering all 29 detection categories, the capability lattice, CLI batch output, and the converter.
+385 tests covering all 42 detection categories, the capability lattice, MCP scanning, policy engine, and CLI.
 
 ## Related
 
